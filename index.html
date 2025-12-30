@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Bus Murni Jaya | Tiket Resmi Antar Kota & Provinsi</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0d47a1;
+  --blue2:#1976d2;
+  --bg:#f2f6ff;
+  --card:#fff;
+  --text:#1f2937;
+}
+body.dark{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#f1f5f9;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);transition:.3s;overflow-x:hidden;}
+
+/* LOADING SCREEN */
+#loading{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;
+}
+#loading h1{font-size:2.5em;margin-bottom:20px;}
+#loading .progress-container{
+  width:80%;background:rgba(255,255,255,0.2);border-radius:20px;height:20px;margin-bottom:10px;overflow:hidden;
+}
+#loading .progress-bar{
+  width:0%;height:100%;background:#fff;border-radius:20px;transition:width .2s ease;
+}
+#loading p{font-size:1em;opacity:.9;}
+
+/* NAVBAR */
+nav{
+  position:sticky;top:0;z-index:1000;
+  background:var(--card);
+  padding:14px 8%;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+nav ul{display:flex;gap:20px;list-style:none;}
+nav a{text-decoration:none;color:var(--text);font-weight:600;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;}
+.hamburger span{width:24px;height:3px;background:var(--text);}
+#mobileMenu{
+  position:fixed;top:0;right:-100%;
+  width:75%;height:100%;
+  background:var(--card);
+  padding:80px 25px;
+  transition:.4s;
+  z-index:2000
+}
+#mobileMenu a{display:block;margin:18px 0;font-weight:600;color:var(--text);}
+#mobileMenu.show{right:0;}
+
+/* SECTIONS */
+section{
+  padding:70px 8%;
+  opacity:0;
+  transform:translateY(40px);
+  transition:1s
+}
+section.show{opacity:1;transform:none;}
+
+/* HERO */
+.hero{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  text-align:center;
+  border-radius:0 0 40px 40px;
+}
+.hero h1{font-size:2.2em;}
+.hero p{margin-top:10px;opacity:.95;}
+
+/* CARD */
+.card{
+  background:var(--card);
+  border-radius:20px;
+  padding:25px;
+  margin-top:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08)
+}
+
+/* FORM */
+form{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+input,select{padding:13px;border-radius:12px;border:1px solid #cbd5e1;font-size:.95em;}
+input:focus,select:focus{outline:none;border-color:var(--blue);}
+button{padding:14px;border-radius:14px;border:none;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;}
+button:hover{background:#08306b;}
+
+/* BUS SEAT */
+.bus{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:320px;margin:25px auto;}
+.seat{padding:10px 0;background:#22c55e;color:#fff;text-align:center;border-radius:8px;cursor:pointer;}
+.seat.booked{background:#ef4444;cursor:not-allowed;}
+.seat.selected{background:#2563eb;}
+
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:3000;}
+#modal .box{background:var(--card);padding:25px;border-radius:18px;text-align:center;width:90%;max-width:360px;}
+#modal img{width:200px;margin:15px 0;}
+
+/* TRUST */
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
+.trust div{background:var(--card);padding:20px;border-radius:16px;text-align:center;font-weight:600;}
+
+/* REVIEW */
+.review{overflow:hidden;white-space:nowrap;margin-top:20px;}
+.review p{display:inline-block;margin-right:50px;font-weight:500;}
+
+/* WA FLOAT */
+#wa{position:fixed;bottom:20px;right:20px;background:#25D366;color:#fff;padding:14px 18px;border-radius:50px;text-decoration:none;font-weight:700;}
+
+/* DARK MODE */
+#darkToggle{position:fixed;bottom:90px;right:22px;background:var(--card);padding:10px;border-radius:50%;cursor:pointer;box-shadow:0 5px 15px rgba(0,0,0,.2);}
+
+/* FAQ */
+.faq{margin-top:20px;}
+.faq h4{margin-top:15px;cursor:pointer;padding:10px;border-radius:10px;background:var(--blue2);color:#fff;transition:.3s;}
+.faq p{padding:10px 15px;display:none;background:var(--card);border-radius:10px;margin-top:5px;}
+
+/* UPLOAD NOTIF */
+#notif{
+  position:fixed;top:20px;right:20px;
+  background:#22c55e;color:#fff;
+  padding:15px 20px;border-radius:10px;
+  display:none;
+  z-index:5000;
+  font-weight:600;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+@media(max-width:768px){
+  nav ul{display:none;}
+  .hamburger{display:flex;}
+  section{padding:55px 6%;}
+  form{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <h2>Selamat Datang</h2>
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+  <p id="percent">0%</p>
+</div>
+
+<!-- NOTIF -->
+<div id="notif">✔ Pembayaran berhasil terkirim!</div>
+
+<!-- NAVBAR -->
+<nav>
+  <b>PO Bus Murni Jaya</b>
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#pesan">Pesan Tiket</a></li>
+    <li><a href="#trust">Trust & Legal</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div id="mobileMenu">
+  <a href="#home" onclick="toggleMenu()">Home</a>
+  <a href="#pesan" onclick="toggleMenu()">Pesan Tiket</a>
+  <a href="#trust" onclick="toggleMenu()">Trust & Legal</a>
+  <a href="#faq" onclick="toggleMenu()">FAQ</a>
+</div>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <h1>PO Bus Murni Jaya</h1>
+  <p>Resmi • Aman • Terpercaya • Agen Terminal Asli</p>
+</section>
+
+<!-- FORM PEMESANAN -->
+<section id="pesan">
+<h2>Form Pemesanan Tiket</h2>
+<div class="card">
+<form id="form">
+<input placeholder="Nama Lengkap" required>
+<input placeholder="Nomor WhatsApp Aktif" required>
+
+<select id="asal" required>
+<option value="">Terminal Asal</option>
+<option>Terminal Bekasi</option>
+<option>Terminal Bekasi Timur</option>
+<option>Bekasi Barat</option>
+<option>Kampung Rambutan</option>
+<option>Kampung Rambutan Malam</option>
+<option>Cileungsi</option>
+<option>Cileungsi Alternatif</option>
+<option>Cibinong</option>
+<option>Bogor Baranangsiang</option>
+<option>Bogor Tajur</option>
+<option>Depok Jatijajar</option>
+<option>Depok Margonda</option>
+<option>Depok Cijago</option>
+<option>Karawang Barat</option>
+<option>Terminal Klari Karawang</option>
+<option>Karawang Timur</option>
+<option>Cikarang Barat</option>
+<option>Cikarang Timur</option>
+<option>Tambun</option>
+<option>Babelan</option>
+<option>Jonggol</option>
+<option>Gunung Putri</option>
+<option>Sukamaju (Depok Utara)</option>
+<option>Cinere</option>
+<option>Cakung (Akses Jabar)</option>
+<option>Pulogebang (Transit Jabar)</option>
+<option>Subang</option>
+<option>Purwakarta</option>
+<option>Indramayu</option>
+<option>Cirebon</option>
+</select>
+
+<select id="tujuan" required>
+<option value="">Terminal Tujuan</option>
+<option>Tegal</option><option>Pekalongan</option><option>Pemalang</option>
+<option>Semarang Terboyo</option><option>Kudus</option><option>Pati</option>
+<option>Rembang</option><option>Solo Tirtonadi</option><option>Yogyakarta Giwangan</option>
+<option>Magelang</option><option>Temanggung</option><option>Wonosobo</option>
+<option>Purwokerto</option><option>Cilacap</option><option>Kebumen</option>
+<option>Banjarnegara</option><option>Purbalingga</option>
+</select>
+
+<input type="date" required>
+<select required>
+<option value="">Jam Keberangkatan</option>
+<option>06:00</option><option>08:00</option><option>10:00</option>
+<option>12:00</option><option>14:00</option><option>16:00</option>
+<option>18:00</option><option>20:00</option>
+</select>
+
+<select required>
+<option value="">Kelas Bus</option>
+<option>Executive</option>
+<option>Super Executive</option>
+<option>Sleeper</option>
+</select>
+
+<select required>
+<option value="">Metode Pembayaran</option>
+<option>BCA</option>
+<option>BRI</option>
+<option>BNI</option>
+<option>Mandiri</option>
+<option>QRIS</option>
+</select>
+
+<input id="kodeBooking" placeholder="Kode Booking" readonly required>
+
+<input type="file" id="buktiBayar" accept="image/*" style="margin-top:10px;display:none;">
+
+<button type="submit" id="bayarBtn">Bayar & Lanjut</button>
+<button type="button" id="kirimBukti" style="display:none;margin-top:10px;">Kirim Bukti Bayar</button>
+</form>
+
+<h3 style="text-align:center;margin-top:30px">Pilih Kursi (Muncul setelah Bayar & Upload)</h3>
+<div class="bus" id="bus"></div>
+
+</section>
+
+<!-- TRUST & LEGAL -->
+<section id="trust">
+<h2>Trust & Legal Notice</h2>
+<div class="trust">
+<div>✅ Tiket Resmi PO</div>
+<div>🔐 Agen Terminal Asli</div>
+<div>💳 Pembayaran Aman</div>
+<div>📲 Support WhatsApp Aktif</div>
+</div>
+<p style="margin-top:20px;font-size:.9em">© 2025 PO Bus Murni Jaya. Semua hak dilindungi hukum. Website ini untuk demo & pemesanan resmi.</p>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+<h2>FAQ</h2>
+<div class="faq">
+<h4>Apa itu PO Bus Murni Jaya?</h4>
+<p>PO Bus Murni Jaya adalah layanan bus resmi antar kota & provinsi.</p>
+<h4>Bagaimana cara memesan tiket?</h4>
+<p>Isi form pemesanan, pilih kelas, jam, tanggal, bayar, dan dapatkan e-ticket.</p>
+<h4>Bagaimana status tiket saya?</h4>
+<p>Setelah pembayaran, kode booking dan e-ticket akan muncul.</p>
+</div>
+</section>
+
+<a id="wa" href="https://wa.me/6281383098236">💬 CS WhatsApp</a>
+<div id="darkToggle">🌙</div>
+
+<!-- MODAL QR -->
+<div id="modal">
+<div class="box">
+<h3>Pembayaran QRIS / Bank</h3>
+<img src="WhatsApp Image 2025-12-30 at 21.01.59.jpeg">
+<p style="color:red;font-size:.9em">
+⚠️ Wajib screenshot bukti pembayaran<br>
+dan kirim ke WhatsApp agen
+</p>
+<button onclick="modal.style.display='none'">Tutup</button>
+</div>
+</div>
+
+<script>
+/* LOADING ANIMASI */
+let width=0;
+const progressBar=document.getElementById("progressBar");
+const percentText=document.getElementById("percent");
+let loadingInterval=setInterval(()=>{
+  width++;
+  progressBar.style.width=width+"%";
+  percentText.textContent=width+"%";
+  if(width>=100){clearInterval(loadingInterval);document.getElementById("loading").style.display="none";}
+},20);
+
+/* ANIMASI SECTION */
+const obs=new IntersectionObserver(e=>{
+ e.forEach(x=>x.isIntersecting&&x.target.classList.add("show"))
+},{threshold:.2})
+document.querySelectorAll("section").forEach(s=>obs.observe(s))
+
+/* MOBILE MENU */
+function toggleMenu(){mobileMenu.classList.toggle("show")}
+
+/* DARK MODE */
+darkToggle.onclick=()=>{
+ document.body.classList.toggle("dark")
+ darkToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙"
+}
+
+/* SEAT */
+const bus=document.getElementById("bus")
+const seatInput=document.getElementById("kodeBooking")
+const buktiBayar=document.getElementById("buktiBayar")
+const kirimBuktiBtn=document.getElementById("kirimBukti")
+const notif=document.getElementById("notif")
+function generateSeats(){
+ bus.innerHTML="";
+ for(let i=1;i<=32;i++){
+   const s=document.createElement("div")
+   s.className="seat"
+   s.textContent=i
+   if(Math.random()<0.2)s.classList.add("booked")
+   s.onclick=()=>{
+     if(s.classList.contains("booked"))return
+     document.querySelectorAll(".seat").forEach(x=>x.classList.remove("selected"))
+     s.classList.add("selected")
+     seatInput.value="Kursi "+i+" - "+Math.floor(Math.random()*899+100)
+   }
+   bus.appendChild(s)
+ }
+}
+
+/* FORM SUBMIT */
+form.onsubmit=e=>{
+ e.preventDefault()
+ // generate kode booking & show modal
+ const kode="MJ"+Math.floor(Math.random()*89999+10000)
+ kodeBooking.value=kode
+modal.style.display="flex"
+buktiBayar.style.display="block"
+kirimBuktiBtn.style.display="block"
+}
+
+/* KIRIM BUKTI BAYAR */
+kirimBuktiBtn.onclick=()=>{
+ if(!buktiBayar.files.length){alert("Silakan pilih file bukti bayar!");return;}
+ notif.style.display="block";
+setTimeout(()=>{notif.style.display="none";generateSeats();},5000);
+}
+
+/* FAQ TOGGLE */
+document.querySelectorAll(".faq h4").forEach(f=>{
+ f.onclick=()=>{f.nextElementSibling.style.display=f.nextElementSibling.style.display==="block"?"none":"block"}
+})
+</script>
+</body>
+</html>
